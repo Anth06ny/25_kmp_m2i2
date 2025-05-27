@@ -22,6 +22,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,10 +37,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import kotlinproject.composeapp.generated.resources.Res
 import kotlinproject.composeapp.generated.resources.compose_multiplatform
 import org.example.project.model.Photographer
+import org.example.project.ui.Routes
 import org.example.project.ui.theme.AppTheme
 import org.example.project.viewmodel.MainViewModel
 import org.jetbrains.compose.resources.painterResource
@@ -50,14 +53,19 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 fun PhotographerPreview() {
     AppTheme {
+        Scaffold { }
         val mainViewModel = MainViewModel()
         mainViewModel.loadFakeData(true, "Une erreur")
-        PhotographerScreen(mainViewModel = mainViewModel)
+        PhotographersScreen(mainViewModel = mainViewModel)
     }
 }
 
 @Composable
-fun PhotographerScreen(modifier: Modifier = Modifier, mainViewModel: MainViewModel = viewModel { MainViewModel() }) {
+fun PhotographersScreen(
+    modifier: Modifier = Modifier,
+    mainViewModel: MainViewModel = viewModel { MainViewModel() },
+    navHostController: NavHostController? = null
+) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
 
         val list = mainViewModel.dataList.collectAsStateWithLifecycle().value
@@ -77,7 +85,12 @@ fun PhotographerScreen(modifier: Modifier = Modifier, mainViewModel: MainViewMod
 
         LazyColumn(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(list.size) {
-                PhotographerItem(list[it])
+                PhotographerItem(
+                    list[it],
+                    onItemClick = {
+                            navHostController?.navigate(Routes.PhotographerRoute(it.id))
+                    }
+                )
             }
         }
 
@@ -119,10 +132,10 @@ fun PhotographerItem(photographer: Photographer, onItemClick: (Photographer) -> 
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = if(expended) photographer.story else (photographer.story.take(20) + "..."),
+                    text = if (expended) photographer.story else (photographer.story.take(20) + "..."),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.clickable { expended = !expended  }.animateContentSize()
+                    modifier = Modifier.clickable { expended = !expended }.animateContentSize()
                 )
             }
             Icon(

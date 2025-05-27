@@ -73,6 +73,8 @@ kotlin {
             //ImageLoader
             implementation("io.coil-kt.coil3:coil-network-ktor3:3.0.0")
             implementation("io.coil-kt.coil3:coil-compose:3.0.0")
+
+            implementation("org.jetbrains.androidx.navigation:navigation-compose:2.8.+")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
