@@ -8,6 +8,9 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+
+    //kotlinxSerialization : kotlinversion
+    kotlin("plugin.serialization") version "2.1.0"
 }
 
 kotlin {
@@ -37,6 +40,13 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+
+            //Client de requêtes spécifique à Android
+                implementation("io.ktor:ktor-client-okhttp:3.0.0")
+        }
+        iosMain.dependencies {
+            //Client de requêtes spécifique à iOS
+            implementation("io.ktor:ktor-client-darwin:3.0.0")
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -47,6 +57,22 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+
+            // (les interfaces en gros)
+            implementation("io.ktor:ktor-client-core:3.0.0")
+            //Intégration avec la bibliothèque de serialisation, gestion des headers
+            implementation("io.ktor:ktor-client-content-negotiation:3.0.0")
+            //Serialisation JSON
+            implementation("io.ktor:ktor-serialization-kotlinx-json:3.0.0")
+
+            //Même librairie que pour Android sauf qu'il y a org.jetbrains. avant
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.9.0")
+
+            implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
+
+            //ImageLoader
+            implementation("io.coil-kt.coil3:coil-network-ktor3:3.0.0")
+            implementation("io.coil-kt.coil3:coil-compose:3.0.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -54,8 +80,10 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
-        }
 
+            //Client de requêtes spécifique au bureau sur JVM donc même qu'Android
+            implementation("io.ktor:ktor-client-okhttp:3.0.0")
+        }
     }
 }
 
@@ -87,6 +115,7 @@ android {
 }
 
 dependencies {
+    implementation("io.ktor:ktor-client-okhttp-jvm:3.0.0")
     debugImplementation(compose.uiTooling)
 }
 
