@@ -2,35 +2,30 @@ package org.example.project.model
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
-import io.ktor.http.ContentType
-import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
+import org.example.project.di.initKoin
+import org.koin.mp.KoinPlatform
 
 //Dans commonMain/model
 suspend fun main() {
    // println(PhotographerAPI.loadPhotographers().joinToString(separator = "\n\n"))
-    println(PhotographerAPI.loadPhotographers())
+
+    initKoin()
+    val photographerAPI = KoinPlatform.getKoin().get<PhotographerAPI>()
+
+    println(photographerAPI.loadPhotographers())
 }
 
-object PhotographerAPI {
-    private const val API_URL =
-        "https://www.amonteiro.fr/api/photographers"
+class PhotographerAPI(val  client: HttpClient) {
 
-    //Déclaration du client
-    private val client = HttpClient {
-        install(ContentNegotiation) {
-            json(Json { ignoreUnknownKeys = true }, contentType = ContentType.Any)
-        }
 
-//        engine {
-//            proxy = ProxyBuilder.http("monproxy:1234")
-//        }
+
+    companion object {
+        private const val API_URL =
+            "https://www.amonteiro.fr/api/photographers"
     }
-
 
     //GET
     suspend fun loadPhotographers(): List<Photographer> {

@@ -5,7 +5,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,6 +15,7 @@ import org.example.project.ui.screens.PhotographerScreen
 import org.example.project.ui.screens.PhotographersScreen
 import org.example.project.ui.theme.AppTheme
 import org.example.project.viewmodel.MainViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 class Routes {
     @Serializable
@@ -28,13 +28,20 @@ class Routes {
 
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier) {
+
+    //Sans contexte
+//    KoinApplication(application = {
+//        modules(apiModule, viewModelModule)
+//    }) {
+//
+//    }
     AppTheme {
         Scaffold(modifier = modifier) {
 
             val navHostController: NavHostController = rememberNavController()
             //viewModel() en dehors de NavHost lie à l'Activité donc partagé entre les écrans
             //viewModel() dans le NavHost lié à la stack d'écran. Une instance par stack d'écran
-            val mainViewModel: MainViewModel = viewModel { MainViewModel() }
+            val mainViewModel: MainViewModel = koinViewModel<MainViewModel>()
 
 
             //Import version avec Composable
@@ -49,17 +56,22 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                     //val mainViewModel : MainViewModel = viewModel()
 
                     //on peut passer le navHostController à un écran s'il déclenche des navigations
-                    PhotographersScreen(mainViewModel = mainViewModel, navHostController = navHostController)
+                    PhotographersScreen(
+                        mainViewModel = mainViewModel,
+                        navHostController = navHostController
+                    )
                 }
 
                 //Route 2 vers un écran de détail
                 composable<Routes.PhotographerRoute> {
                     val detailRoute = it.toRoute<Routes.PhotographerRoute>()
-                    val photographer = mainViewModel.dataList.collectAsStateWithLifecycle().value.first { it.id == detailRoute.id }
+                    val photographer =
+                        mainViewModel.dataList.collectAsStateWithLifecycle().value.first { it.id == detailRoute.id }
 
                     PhotographerScreen(photographer = photographer)
                 }
             }
         }
+
     }
 }
