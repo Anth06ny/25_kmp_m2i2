@@ -37,10 +37,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
+import dev.icerock.moko.permissions.PermissionState
 import kotlinproject.composeapp.generated.resources.Res
 import kotlinproject.composeapp.generated.resources.compose_multiplatform
 import org.example.project.di.initKoin
 import org.example.project.model.Photographer
+import org.example.project.ui.LocationPermissionButton
 import org.example.project.ui.Routes
 import org.example.project.ui.theme.AppTheme
 import org.example.project.viewmodel.MainViewModel
@@ -54,7 +56,7 @@ import org.koin.mp.KoinPlatform
 fun PhotographerPreview() {
     initKoin()
     AppTheme {
-        val mainViewModel  = KoinPlatform.getKoin().get<MainViewModel>()
+        val mainViewModel = KoinPlatform.getKoin().get<MainViewModel>()
         mainViewModel.loadFakeData(true, "Une erreur est survenue")
         PhotographersScreen(mainViewModel = mainViewModel)
     }
@@ -71,6 +73,18 @@ fun PhotographersScreen(
         val list = mainViewModel.dataList.collectAsStateWithLifecycle().value
         val runInProgress = mainViewModel.runInProgress.collectAsStateWithLifecycle().value
         val errorMessage = mainViewModel.errorMessage.collectAsStateWithLifecycle().value
+        val location by mainViewModel.location.collectAsStateWithLifecycle()
+
+
+        var permissionState by remember { mutableStateOf<PermissionState?>(null) }
+
+        LocationPermissionButton {
+            println("callback $it")
+            permissionState = it
+            if(it == PermissionState.Granted) {
+                mainViewModel.getCurrentLocation()
+            }
+        }
 
         AnimatedVisibility(visible = runInProgress) {
             CircularProgressIndicator()
@@ -83,12 +97,18 @@ fun PhotographersScreen(
             )
         }
 
+        Text(
+            text = "${permissionState?.toString() ?: "-"} : $location",
+            color = MaterialTheme.colorScheme.onTertiaryContainer,
+            modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.tertiaryContainer)
+        )
+
         LazyColumn(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(list.size) {
                 PhotographerItem(
                     list[it],
                     onItemClick = {
-                            navHostController?.navigate(Routes.PhotographerRoute(it.id))
+                        navHostController?.navigate(Routes.PhotographerRoute(it.id))
                     }
                 )
             }

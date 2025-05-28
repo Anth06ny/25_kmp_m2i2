@@ -11,6 +11,8 @@ import org.example.project.db.MyDatabase
 import org.example.project.di.initKoin
 import org.example.project.model.Photographer
 import org.example.project.model.PhotographerAPI
+import org.example.project.services.Location
+import org.example.project.services.LocationService
 import org.koin.mp.KoinPlatform
 
 fun main() {
@@ -22,7 +24,11 @@ fun main() {
     println("List : ${viewModel.dataList.value}")
 }
 
-class MainViewModel(val photographerAPI: PhotographerAPI, val myDatabase: MyDatabase) : ViewModel() {
+class MainViewModel(
+    val photographerAPI: PhotographerAPI,
+    val myDatabase: MyDatabase,
+    val locationService: LocationService
+    ) : ViewModel() {
 
     private val _dataList = MutableStateFlow(emptyList<Photographer>())
     private val jsonParser = Json { prettyPrint = true }
@@ -36,9 +42,14 @@ class MainViewModel(val photographerAPI: PhotographerAPI, val myDatabase: MyData
 
     private val photographerQueries = myDatabase.photographerStorageQueries
 
+    private val _location = MutableStateFlow<Location?>(null)
+    val location = _location.asStateFlow()
+
     init {
         loadPhotographers()
     }
+
+
 
     private fun loadPhotographers() {
 
@@ -122,5 +133,11 @@ class MainViewModel(val photographerAPI: PhotographerAPI, val myDatabase: MyData
                 )
             )
         )
+    }
+
+    fun getCurrentLocation() {
+        locationService.getCurrentLocation {
+            _location.value = it
+        }
     }
 }

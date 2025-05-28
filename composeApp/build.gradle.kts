@@ -52,6 +52,9 @@ kotlin {
 
             //Base de données
             implementation("app.cash.sqldelight:android-driver:2.0.2")
+
+            //Location
+            implementation("com.google.android.gms:play-services-location:21.3.0")
         }
         iosMain.dependencies {
             //Client de requêtes spécifique à iOS
@@ -94,6 +97,9 @@ kotlin {
             //Base de données
             implementation("app.cash.sqldelight:runtime:2.0.2")
             implementation("app.cash.sqldelight:coroutines-extensions:2.0.2")
+
+            api("dev.icerock.moko:permissions:0.18.0")
+            api("dev.icerock.moko:permissions-compose:0.18.0")
         }
         commonTest.dependencies {
             implementation("io.insert-koin:koin-test:4.0.0")

@@ -2,6 +2,7 @@ package org.example.project.di
 
 import io.ktor.client.HttpClient
 import org.example.project.model.PhotographerAPI
+import org.example.project.services.LocationService
 import org.example.project.viewmodel.MainViewModel
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -14,7 +15,7 @@ import org.koin.dsl.module
 fun initKoin(appDeclaration: KoinAppDeclaration = {}) =
     startKoin {
         appDeclaration()
-        modules(apiModule, databaseModule(), viewModelModule)
+        modules(apiModule, databaseModule(), LocationModule, viewModelModule)
     }
 
 // Version pour iOS et Desktop
@@ -41,4 +42,8 @@ val apiModule = module {
 val viewModelModule = module {
     //D'abord faire l'import de MainViewModel, sinon viewModelOf n'en voudra pas
     viewModelOf(::MainViewModel)
+}
+
+val LocationModule = module {
+    singleOf(::LocationService)
 }
